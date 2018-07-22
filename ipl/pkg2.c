@@ -221,6 +221,175 @@ static const pkg2_kernel_id_t _pkg2_kernel_ids[] =
 	{ 0, 0 }                              //End.
 };
 
+static kip1_patch_t _fs_nosigchk_100[] = 
+{
+	{ 0x195A0, 4, "\xBA\x09\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x3A89C, 4, "\xE0\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_100[] = 
+{
+	{ "nosigchk", _fs_nosigchk_100 },
+	{ "nogc",     NULL },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_200[] = 
+{
+	{ 0x15EF4, 4, "\xBC\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x3F820, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_200[] = 
+{
+	{ "nosigchk", _fs_nosigchk_200 },
+	{ "nogc",     NULL },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_210[] = 
+{
+	{ 0x16064, 4, "\xDF\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x3FBF8, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_210[] = 
+{
+	{ "nosigchk", _fs_nosigchk_210 },
+	{ "nogc",     NULL },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_300[] = 
+{
+	{ 0x18F24, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x49FC8, 4, "\x40\x04\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_300[] = 
+{
+	{ "nosigchk", _fs_nosigchk_300 },
+	{ "nogc",     NULL },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_30x[] = 
+{
+	{ 0x18F90, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x4A034, 4, "\xE0\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_30x[] = 
+{
+	{ "nosigchk", _fs_nosigchk_30x },
+	{ "nogc",     NULL },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_4xx[] = 
+{
+	{ 0x1C5FC, 4, "\x3C\x2F\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x57A34, 4, "\xE0\x02\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patch_t _fs_nogc_40x[] = 
+{
+	{ 0xA3558, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
+	{ 0xAAD98, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_40x[] = 
+{
+	{ "nosigchk", _fs_nosigchk_4xx },
+	{ "nogc",     _fs_nogc_40x },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nogc_410[] = 
+{
+	{ 0xA35BC, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
+	{ 0xAADFC, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_410[] = 
+{
+	{ "nosigchk", _fs_nosigchk_4xx },
+	{ "nogc",     _fs_nogc_410 },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_50x[] = 
+{
+	{ 0x22EDC, 4, "\x7D\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x7D590, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patch_t _fs_nogc_50x[] = 
+{
+	{ 0xCF4C4, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
+	{ 0xD75FC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_50x[] = 
+{
+	{ "nosigchk", _fs_nosigchk_50x },
+	{ "nogc",     _fs_nogc_50x },
+	{ NULL, NULL }
+};
+
+static kip1_patch_t _fs_nosigchk_510[] = 
+{
+	{ 0x22F0C, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ 0x7D960, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patch_t _fs_nogc_510[] = 
+{
+	{ 0xCF894, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
+	{ 0xD79CC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ 0, 0, NULL, NULL }
+};
+
+static kip1_patchset_t _fs_patches_510[] = 
+{
+	{ "nosigchk", _fs_nosigchk_510 },
+	{ "nogc",     _fs_nogc_510 },
+	{ NULL, NULL }
+};
+
+static kip1_id_t _kip_ids[] = 
+{
+	{ "FS", "\xde\x9f\xdd\xa4\x08\x5d\xd5\xfe\x68\xdc\xb2\x0b\x41\x09\x5b\xb4", _fs_patches_100 }, // FS 1.0.0
+	{ "FS", "\xfc\x3e\x80\x99\x1d\xca\x17\x96\x4a\x12\x1f\x04\xb6\x1b\x17\x5e", _fs_patches_100 }, // FS 1.0.0 "exfat"
+	{ "FS", "\xcd\x7b\xbe\x18\xd6\x13\x0b\x28\xf6\x2f\x19\xfa\x79\x45\x53\x5b", _fs_patches_200 }, // FS 2.0.0
+	{ "FS", "\xe7\x66\x92\xdf\xaa\x04\x20\xe9\xfd\xd6\x8e\x43\x63\x16\x18\x18", _fs_patches_200 }, // FS 2.0.0 exfat
+	{ "FS", "\x0d\x70\x05\x62\x7b\x07\x76\x7c\x0b\x96\x3f\x9a\xff\xdd\xe5\x66", _fs_patches_210 }, // FS 2.1.0
+	{ "FS", "\xdb\xd8\x5f\xca\xcc\x19\x3d\xa8\x30\x51\xc6\x64\xe6\x45\x2d\x32", _fs_patches_210 }, // FS 2.1.0 exfat
+	{ "FS", "\xa8\x6d\xa5\xe8\x7e\xf1\x09\x7b\x23\xda\xb5\xb4\xdb\xba\xef\xe7", _fs_patches_300 }, // FS 3.0.0
+	{ "FS", "\x98\x1c\x57\xe7\xf0\x2f\x70\xf7\xbc\xde\x75\x31\x81\xd9\x01\xa6", _fs_patches_300 }, // FS 3.0.0 exfat
+	{ "FS", "\x57\x39\x7c\x06\x3f\x10\xb6\x31\x3f\x4d\x83\x76\x53\xcc\xc3\x71", _fs_patches_30x }, // FS 3.0.1
+	{ "FS", "\x07\x30\x99\xd7\xc6\xad\x7d\x89\x83\xbc\x7a\xdd\x93\x2b\xe3\xd1", _fs_patches_30x }, // FS 3.0.1 exfat
+	{ "FS", "\x06\xe9\x07\x19\x59\x5a\x01\x0c\x62\x46\xff\x70\x94\x6f\x10\xfb", _fs_patches_40x }, // FS 4.0.1
+	{ "FS", "\x54\x9b\x0f\x8d\x6f\x72\xc4\xe9\xf3\xfd\x1f\x19\xea\xce\x4a\x5a", _fs_patches_40x }, // FS 4.0.1 exfat
+	{ "FS", "\x80\x96\xaf\x7c\x6a\x35\xaa\x82\x71\xf3\x91\x69\x95\x41\x3b\x0b", _fs_patches_410 }, // FS 4.1.0
+	{ "FS", "\x02\xd5\xab\xaa\xfd\x20\xc8\xb0\x63\x3a\xa0\xdb\xae\xe0\x37\x7e", _fs_patches_410 }, // FS 4.1.0 exfat
+	{ "FS", "\xa6\xf2\x7a\xd9\xac\x7c\x73\xad\x41\x9b\x63\xb2\x3e\x78\x5a\x0c", _fs_patches_50x }, // FS 5.0.0
+	{ "FS", "\xce\x3e\xcb\xa2\xf2\xf0\x62\xf5\x75\xf8\xf3\x60\x84\x2b\x32\xb4", _fs_patches_50x }, // FS 5.0.0 exfat
+	{ "FS", "\x76\xf8\x74\x02\xc9\x38\x7c\x0f\x0a\x2f\xab\x1b\x45\xce\xbb\x93", _fs_patches_510 }, // FS 5.1.0
+	{ "FS", "\x10\xb2\xd8\x16\x05\x48\x85\x99\xdf\x22\x42\xcb\x6b\xac\x2d\xf1", _fs_patches_510 }, // FS 5.1.0 exfat
+};
+
 const pkg2_kernel_id_t *pkg2_identify(u32 id)
 {
 	for (u32 i = 0; _pkg2_kernel_ids[i].crc32c_id; i++)

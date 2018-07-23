@@ -15,6 +15,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 
 //this function is like 3x faster with -O2 than -Os
 unsigned char* kip1_blz_decompress(const unsigned char* compData, unsigned int compDataLen, int* decompLenPtr)

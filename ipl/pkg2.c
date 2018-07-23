@@ -570,7 +570,30 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 	u32 patchesApplied = 0; //bitset over patches
 	for (u32 i=0; i<numPatches; i++)
 	{
-		DPRINTF("Requested patch: %s\n", patches[i]);
+		//eliminate leading spaces
+		for (const char* p=patches[i]; *p!=0; p++)
+		{
+			if (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
+				patches[i]++;
+			else
+				break;
+		}
+		int valueLen = strlen(patches[i]);
+		if (valueLen == 0)
+			continue;
+
+		//eliminate trailing spaces
+		for (int chIdx=valueLen-1; chIdx>=0; chIdx--)
+		{
+			const char* p = patches[i] + chIdx;
+			if (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
+				valueLen = chIdx;
+			else
+				break;
+		}
+		patches[i][valueLen] = 0;
+
+		DPRINTF("Requested patch: '%s'\n", patches[i]);
 	}
 
 	u32 shaBuf[32/sizeof(u32)];
@@ -669,8 +692,6 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 	{
 		if ((patchesApplied & (1u << i)) == 0)
 			return patches[i];
-		else if (i != numPatches-1)
-			patches[i][strlen(patches[i])] = ',';
 	}
 
 	return NULL;

@@ -21,7 +21,7 @@ OBJS = $(addprefix $(BUILD)/, \
 	hos.o \
 	i2c.o \
 	kfuse.o \
-	lz.o \
+	lz4_wrapper.o \
 	bq24193.o \
 	max7762x.o \
 	max17050.o \
@@ -46,7 +46,7 @@ OBJS = $(addprefix $(BUILD)/, \
 OBJS += $(addprefix $(BUILD)/, diskio.o ff.o ffunicode.o ffsystem.o)
 
 ARCH := -march=armv4t -mtune=arm7tdmi -mthumb -mthumb-interwork
-CUSTOMDEFINES := 
+CUSTOMDEFINES := -DMENU_LOGO_ENABLE
 CFLAGS = $(ARCH) -O2 -nostdlib -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-inline -std=gnu11 -Wall $(CUSTOMDEFINES)
 LDFLAGS = $(ARCH) -nostartfiles -lgcc -Wl,--nmagic,--gc-sections
 

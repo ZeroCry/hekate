@@ -25,14 +25,8 @@
 #include "sdram_param_t210.h"
 #include "clock.h"
 
-#define CONFIG_SDRAM_COMPRESS_CFG
-
-#ifdef CONFIG_SDRAM_COMPRESS_CFG
-#include "lz.h"
-#include "sdram_lz.inl"
-#else
-#include "sdram.inl"
-#endif
+#include "lz4.h"
+#include "sdram_lz4.inl"
 
 static u32 _get_sdram_id()
 {
@@ -491,20 +485,20 @@ break_nosleep:
 
 const void *sdram_get_params()
 {
-	//TODO: sdram_id should be in [0, 7].
+	//TODO: sdram_id should be in [0, 6].
 
-#ifdef CONFIG_SDRAM_COMPRESS_CFG
-	u8 *buf = (u8 *)0x40030000;
-	LZ_Uncompress(_dram_cfg_lz, buf, sizeof(_dram_cfg_lz));
-	return (const void *)&buf[sizeof(sdram_params_t) * _get_sdram_id()];
-#else
-	return _dram_cfgs[_get_sdram_id()];
-#endif
+	const size_t targetSize = 7*sizeof(sdram_params_t);
+	unsigned char* targetBuf = (unsigned char*)0x40030000;	
+	size_t decompSize = ulz4fn(_dram_cfg_lz4, sizeof(_dram_cfg_lz4), targetBuf, targetSize);
+	if (decompSize != targetSize) 
+		return NULL;
+
+	return &targetBuf[sizeof(sdram_params_t) * _get_sdram_id()];
 }
 
 void sdram_init()
 {
-	//TODO: sdram_id should be in [0,4].
+	//TODO: sdram_id should be in [0, 4].
 	const sdram_params_t *params = (const sdram_params_t *)sdram_get_params();
 
 	i2c_send_byte(I2C_5, 0x3C, MAX77620_REG_SD_CFG2, 0x05);

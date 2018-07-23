@@ -52,7 +52,7 @@
 #include "pkg1.h"
 #include "pkg2.h"
 #include "mmc.h"
-#include "lz.h"
+#include "lz4.h"
 #include "max17050.h"
 #include "bq24193.h"
 #include "config.h"
@@ -1777,7 +1777,7 @@ void launch_firmware()
 	{
 #ifdef MENU_LOGO_ENABLE
 		Kc_MENU_LOGO = (u8 *)malloc(0x6000);
-		LZ_Uncompress(Kc_MENU_LOGOlz, Kc_MENU_LOGO, SZ_MENU_LOGOLZ);
+		ulz4fn(Kc_MENU_LOGO_lz4, sizeof(Kc_MENU_LOGO_lz4), Kc_MENU_LOGO, 0x6000);
 #endif //MENU_LOGO_ENABLE
 		EPRINTF("Failed to launch firmware.");
 	}
@@ -1933,7 +1933,7 @@ void auto_launch_firmware()
 	else
 	{
 		BOOTLOGO = (void *)malloc(0x4000);
-		LZ_Uncompress(BOOTLOGO_LZ, BOOTLOGO, SZ_BOOTLOGO_LZ);
+		ulz4fn(BOOTLOGO_LZ4, sizeof(BOOTLOGO_LZ4), BOOTLOGO, 0x4000);
 		gfx_set_rect_grey(&gfx_ctxt, BOOTLOGO, X_BOOTLOGO, Y_BOOTLOGO, 326, 544);
 		free(BOOTLOGO);
 	}
@@ -1957,8 +1957,9 @@ void auto_launch_firmware()
 	{
 		// Failed to launch firmware.
 #ifdef MENU_LOGO_ENABLE
-		Kc_MENU_LOGO = (u8 *)malloc(ALIGN(SZ_MENU_LOGO, 0x10));
-		LZ_Uncompress(Kc_MENU_LOGOlz, Kc_MENU_LOGO, SZ_MENU_LOGOLZ);
+		const size_t dstSize = ALIGN(SZ_MENU_LOGO, 0x10);
+		Kc_MENU_LOGO = (u8 *)malloc(dstSize);
+		ulz4fn(Kc_MENU_LOGO_lz4, sizeof(Kc_MENU_LOGO_lz4), Kc_MENU_LOGO, dstSize);
 #endif //MENU_LOGO_ENABLE
 	}
 
@@ -2597,7 +2598,7 @@ void ipl_main()
 
 #ifdef MENU_LOGO_ENABLE
 	Kc_MENU_LOGO = (u8 *)malloc(0x6000);
-	LZ_Uncompress(Kc_MENU_LOGOlz, Kc_MENU_LOGO, SZ_MENU_LOGOLZ);
+	ulz4fn(Kc_MENU_LOGO_lz4, sizeof(Kc_MENU_LOGO_lz4), Kc_MENU_LOGO, 0x6000);
 #endif //MENU_LOGO_ENABLE
 
 	gfx_con_init(&gfx_con, &gfx_ctxt);

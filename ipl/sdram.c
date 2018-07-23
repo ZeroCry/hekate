@@ -25,8 +25,14 @@
 #include "sdram_param_t210.h"
 #include "clock.h"
 
+#define CONFIG_SDRAM_COMPRESS_CFG
+
+#ifdef CONFIG_SDRAM_COMPRESS_CFG
 #include "lz4.h"
 #include "sdram_lz4.inl"
+#else
+#include "sdram.inl"
+#endif
 
 static u32 _get_sdram_id()
 {
@@ -487,6 +493,7 @@ const void *sdram_get_params()
 {
 	//TODO: sdram_id should be in [0, 6].
 
+#ifdef CONFIG_SDRAM_COMPRESS_CFG
 	const size_t targetSize = 7*sizeof(sdram_params_t);
 	unsigned char* targetBuf = (unsigned char*)0x40030000;	
 	size_t decompSize = ulz4fn(_dram_cfg_lz4, sizeof(_dram_cfg_lz4), targetBuf, targetSize);
@@ -494,6 +501,9 @@ const void *sdram_get_params()
 		return NULL;
 
 	return &targetBuf[sizeof(sdram_params_t) * _get_sdram_id()];
+#else
+	return _dram_cfgs[_get_sdram_id()];
+#endif
 }
 
 void sdram_init()

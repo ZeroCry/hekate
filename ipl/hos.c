@@ -536,6 +536,14 @@ int hos_launch(ini_sec_t *cfg)
 	LIST_FOREACH_ENTRY(merge_kip_t, mki, &ctxt.kip1_list, link)
 		pkg2_merge_kip(&kip1_info, (pkg2_kip1_t *)mki->kip1);
 
+	// Patch kip1s in memory if needed
+	const char* unappliedPatch = pkg2_patch_kips(&kip1_info, "nogc,nosigchk");
+	if (unappliedPatch != NULL)
+	{
+		gfx_printf(&gfx_con, "%kREQUESTED PATCH '%s' NOT APPLIED!%k\n", 0xFFFF0000, unappliedPatch, 0xFFCCCCCC);
+		while(1) {} //MUST hang here, because if user requests 'nogc' but it's not applied, their GC controller gets updated!
+	}
+
 	// Rebuild and encrypt package2.
 	pkg2_build_encrypt((void *)0xA9800000, ctxt.kernel, ctxt.kernel_size, &kip1_info);
 	gfx_printf(&gfx_con, "Rebuilt and loaded package2\n");

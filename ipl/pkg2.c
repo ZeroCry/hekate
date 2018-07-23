@@ -25,13 +25,12 @@
 
 #include "gfx.h"
 
-extern gfx_ctxt_t gfx_ctxt;
 extern gfx_con_t gfx_con;
 
-#include "util.h"
+/*#include "util.h"
 #define DPRINTF(...) gfx_printf(&gfx_con, __VA_ARGS__)
-#define DEBUG_PRINTING
-//#define DPRINTF(...)
+#define DEBUG_PRINTING*/
+#define DPRINTF(...)
 
 //TODO: Replace hardcoded AArch64 instructions with instruction macros.
 //TODO: Reduce hardcoded values without searching kernel for patterns?

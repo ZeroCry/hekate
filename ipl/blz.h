@@ -17,8 +17,18 @@
 #ifndef _BLZ_H_
 #define _BLZ_H_
 
-//blz decompression algorithm from nxo64.py
-//TODO: replace this with reverse engineered version from SecMon
-unsigned char* kip1_blz_decompress(const unsigned char* compData, unsigned int compDataLen, int* decompLenPtr);
+#include "types.h"
+
+typedef struct _kip1_blz_footer
+{
+    u32 cmp_and_hdr_size;
+    u32 header_size;
+    u32 addl_size;
+} kip1_blz_footer;
+
+//returns pointer to footer in compData if present, additionally copies it to outFooter if not NULL
+const kip1_blz_footer* kip1_blz_get_footer(const unsigned char* compData, unsigned int compDataLen, kip1_blz_footer* outFooter);
+//returns 0 on failure
+int kip1_blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const kip1_blz_footer* footer);
 
 #endif

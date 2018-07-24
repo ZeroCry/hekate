@@ -473,72 +473,74 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 	pkg2_kip1_t hdr;
 	memcpy(&hdr, ki->kip1, sizeof(hdr));
 	
-	unsigned char* sectDatas[KIP1_NUM_SECTIONS];
-	memset(sectDatas, 0, sizeof(sectDatas));
-
-	unsigned char* srcDataPtr = ki->kip1->data;
+	unsigned int newKipSize = sizeof(hdr);
 	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
 	{
-		int compressed = 0;
-		if (sectIdx < 3)
-			compressed = (hdr.flags & (1u << sectIdx)) ? 1 : 0;
-
-		if (!compressed)
+		//compressed, cant get actual decompressed size without doing it, so use safe "output size"
+		if (sectIdx < 3 && (hdr.flags & (1u << sectIdx))) 
+			newKipSize += hdr.sections[sectIdx].size_decomp;
+		else
+			newKipSize += hdr.sections[sectIdx].size_comp;
+	}
+	pkg2_kip1_t* newKip = malloc(newKipSize);
+	
+	unsigned char* dstDataPtr = newKip->data;
+	const unsigned char* srcDataPtr = ki->kip1->data;
+	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
+	{
+		//easy path for uncompressed
+		if (sectIdx >= 3 || (hdr.flags & (1u << sectIdx)) == 0)
 		{
-			if (hdr.sections[sectIdx].size_comp == 0)
+			unsigned int dataSize = hdr.sections[sectIdx].size_comp;
+			if (dataSize == 0)
 				continue;
 
-			sectDatas[sectIdx] = malloc(hdr.sections[sectIdx].size_comp);
-			memcpy(sectDatas[sectIdx], srcDataPtr, hdr.sections[sectIdx].size_comp);
-			srcDataPtr += hdr.sections[sectIdx].size_comp;
+			memcpy(dstDataPtr, srcDataPtr, dataSize);
+			srcDataPtr += dataSize;
+			dstDataPtr += dataSize;
 			continue;
 		}
 
-		int decompSize=0;
-		gfx_printf(&gfx_con, "Decomping %s KIP1 sect %d of size %d...\n", (const char*)hdr.name, sectIdx, hdr.sections[sectIdx].size_comp);
-		sectDatas[sectIdx] = kip1_blz_decompress(srcDataPtr, hdr.sections[sectIdx].size_comp, &decompSize);
-		srcDataPtr += hdr.sections[sectIdx].size_comp;
-
-		if (decompSize < 0)
+		kip1_blz_footer footer;
+		unsigned int compSize = hdr.sections[sectIdx].size_comp;
+		unsigned int outputSize = hdr.sections[sectIdx].size_decomp;
+		const kip1_blz_footer* compFooterPtr = kip1_blz_get_footer(srcDataPtr, compSize, &footer);
+		if (compFooterPtr == NULL)
 		{
-			gfx_printf(&gfx_con, "%kError %d decomping sect %d of %s KIP!%k\n", 0xFFFF0000, 
-						-decompSize, (int)sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
+			gfx_printf(&gfx_con, "%kNo BLZ footer in comp sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
+			while (1) { }
+		}
+
+		gfx_printf(&gfx_con, "Decomping %s KIP1 sect %d of size %d...\n", (const char*)hdr.name, sectIdx, compSize);
+
+		//decompression must be done in-place, so need a copy first
+		{
+			unsigned int numCompBytes = (const unsigned char*)(compFooterPtr)-srcDataPtr;
+			memcpy(dstDataPtr, srcDataPtr, numCompBytes);
+			memset(&dstDataPtr[numCompBytes], 0, outputSize-numCompBytes);
+		}
+		
+		if (kip1_blz_uncompress(dstDataPtr, compSize, &footer) == 0)
+		{
+			gfx_printf(&gfx_con, "%kERROR decomping sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
 			while (1) { }
 		}
 		else
 		{
-			DPRINTF("Done! Decompressed size is %d!\n", decompSize);
+			DPRINTF("Done! Decompressed size is %d!\n", outputSize);
 		}
-		hdr.sections[sectIdx].size_comp = decompSize;
+		hdr.sections[sectIdx].size_comp = outputSize;
+		srcDataPtr += compSize;
+		dstDataPtr += outputSize;
 	}
+
+	hdr.flags &= 0xF8;
+	memcpy(newKip, &hdr, sizeof(hdr));
+	newKipSize = dstDataPtr-(unsigned char*)(newKip);
 
 	free(ki->kip1);
-	hdr.flags &= 0xF8;
-	unsigned int newKipSize = sizeof(hdr);
-	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
-		newKipSize += hdr.sections[sectIdx].size_comp;
-
-	ki->kip1 = malloc(newKipSize);
+	ki->kip1 = newKip;
 	ki->size = newKipSize;
-	memcpy(ki->kip1, &hdr, sizeof(hdr));
-	srcDataPtr = ki->kip1->data;
-	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
-	{
-		if (hdr.sections[sectIdx].size_comp == 0)
-			continue;
-
-		memcpy(srcDataPtr, sectDatas[sectIdx], hdr.sections[sectIdx].size_comp);
-		srcDataPtr += hdr.sections[sectIdx].size_comp;
-	}	
-
-	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
-	{
-		if (sectDatas[sectIdx] != NULL)
-		{
-			free(sectDatas[sectIdx]);
-			sectDatas[sectIdx] = NULL;
-		}
-	}
 }
 
 const char* pkg2_patch_kips(link_t *info, char* patchNames)

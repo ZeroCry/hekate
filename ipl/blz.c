@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2018 rajkosto
+* Copyright (c) 2018 SciresM
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms and conditions of the GNU General Public License,
@@ -16,138 +17,66 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "blz.h"
 
-//this function is like 3x faster with -O2 than -Os
-unsigned char* kip1_blz_decompress(const unsigned char* compData, unsigned int compDataLen, int* decompLenPtr)
+const kip1_blz_footer* kip1_blz_get_footer(const unsigned char* compData, unsigned int compDataLen, kip1_blz_footer* outFooter)
 {
-	unsigned int compressed_size, init_index, uncompressed_addl_size;
-	{
-		struct BlzFooter
-		{
-			unsigned int compressed_size;
-			unsigned int init_index;
-			unsigned int uncompressed_addl_size;
-		} footer;
-
-		if (compDataLen < sizeof(footer))
-		{
-			*decompLenPtr = compDataLen - sizeof(footer);
-			return NULL;
-		}
-
-		memcpy(&footer, &compData[compDataLen-sizeof(footer)], sizeof(footer));
-		compressed_size = footer.compressed_size;
-		init_index = footer.init_index;
-		uncompressed_addl_size = footer.uncompressed_addl_size;
-	}
-
-	unsigned char* compressedAlloc = malloc(compDataLen);
-	unsigned char* compressedPtr = compressedAlloc;
-	if (compDataLen > 0)
-		memcpy(compressedPtr, compData, compDataLen);
-
-	unsigned int decompressed_size = compDataLen + uncompressed_addl_size;
-	unsigned char* decompressedPtr = malloc(decompressed_size);
-	if (compDataLen > 0)
-	{
-		memcpy(decompressedPtr, compData, compDataLen);
-		unsigned int remainingBytes = decompressed_size - compDataLen;
-		if (remainingBytes > 0)
-			memset(&decompressedPtr[compDataLen], 0, remainingBytes);
-	}
-	else if (decompressed_size > 0)
-		memset(decompressedPtr, 0, decompressed_size);
-
-	if (compDataLen != compressed_size)
-	{
-		if (compDataLen < compressed_size)
-		{
-			*decompLenPtr = compDataLen - compressed_size;
-			free(decompressedPtr);
-			free(compressedAlloc);
-			return NULL;
-		}
-
-		unsigned int numSkipBytes = compDataLen - compressed_size;
-		compressedPtr = &compressedPtr[numSkipBytes];
-	}
-	if ((compressed_size + uncompressed_addl_size) == 0)
-	{
-		*decompLenPtr = 0;
-		free(decompressedPtr);
-		free(compressedAlloc);
+	if (compDataLen < sizeof(kip1_blz_footer))
 		return NULL;
-	}
 
-	unsigned int index = compressed_size - init_index;
-	unsigned int outindex = decompressed_size;
-    while (outindex > 0)
+	const kip1_blz_footer* srcFooter = (const kip1_blz_footer*)&compData[compDataLen-sizeof(kip1_blz_footer)];
+	if (outFooter != NULL)
+		memcpy(outFooter, srcFooter, sizeof(kip1_blz_footer)); //must be a memcpy because no umaligned accesses on ARMv4
+
+	return srcFooter;
+}
+
+//from https://github.com/SciresM/hactool/blob/master/kip.c which is exactly how kernel does it, thanks SciresM!
+int kip1_blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const kip1_blz_footer* footer) 
+{
+    u32 addl_size = footer->addl_size;
+    u32 header_size = footer->header_size;
+    u32 cmp_and_hdr_size = footer->cmp_and_hdr_size;
+    
+    unsigned char* cmp_start = &dataBuf[compSize] - cmp_and_hdr_size;
+    u32 cmp_ofs = cmp_and_hdr_size - header_size;
+    u32 out_ofs = cmp_and_hdr_size + addl_size;
+    
+    while (out_ofs) 
 	{
-		index -= 1;
-		unsigned char control = compressedPtr[index];
-		for (unsigned int i=0; i<8; i++)
+        unsigned char control = cmp_start[--cmp_ofs];
+        for (unsigned int i=0; i<8; i++) 
 		{
-            if ((control & 0x80) != 0)
+            if (control & 0x80) 
 			{
-				if (index < 2)
-				{
-					*decompLenPtr = -1001;
-					free(decompressedPtr);
-					free(compressedAlloc);
-					return NULL;
-				}
+                if (cmp_ofs < 2) 
+					return 0; //out of bounds
 
-				index -= 2;
-				unsigned int segmentoffset = (unsigned int)(compressedPtr[index]) | ((unsigned int)(compressedPtr[index+1]) << 8);
-				unsigned int segmentsize = ((segmentoffset >> 12) & 0xF) + 3;
-				segmentoffset &= 0x0FFF;
-				segmentoffset += 2;
-				if (outindex < segmentsize)
-				{
-					*decompLenPtr = -1002;
-					free(decompressedPtr);
-					free(compressedAlloc);
-					return NULL;
-				}
+                cmp_ofs -= 2;
+                u16 seg_val = ((unsigned int)(cmp_start[cmp_ofs+1]) << 8) | cmp_start[cmp_ofs];
+                u32 seg_size = ((seg_val >> 12) & 0xF) + 3;
+                u32 seg_ofs = (seg_val & 0x0FFF) + 3;
+                if (out_ofs < seg_size) // Kernel restricts segment copy to stay in bounds.
+                    seg_size = out_ofs;
 
-                for (unsigned int j=0; j<segmentsize; j++)
-				{
-					if ((outindex + segmentoffset) >= decompressed_size)
-					{
-						*decompLenPtr = -1003;
-						free(decompressedPtr);
-						free(compressedAlloc);
-						return NULL;
-					}
-
-					unsigned char data = decompressedPtr[outindex+segmentoffset];
-					outindex -= 1;
-					decompressedPtr[outindex] = data;
-				}
-			}
-            else
+                out_ofs -= seg_size;
+                
+                for (unsigned int j = 0; j < seg_size; j++)
+                    cmp_start[out_ofs + j] = cmp_start[out_ofs + j + seg_ofs];
+            }
+			else 
 			{
-				if (outindex < 1)
-				{
-					*decompLenPtr = -1004;
-					free(decompressedPtr);
-					free(compressedAlloc);
-					return NULL;
-				}
+                // Copy directly.
+                if (cmp_ofs < 1) 
+                    return 0; //out of bounds
 
-				outindex -= 1;
-				index -= 1;
-				decompressedPtr[outindex] = compressedPtr[index];
-			}
+                cmp_start[--out_ofs] = cmp_start[--cmp_ofs];
+            }
+            control <<= 1;
+            if (out_ofs == 0) // blz works backwards, so if it reaches byte 0, it's done
+                return 1; 
+        }
+    }
 
-			control <<= 1;
-			control &= 0xFF;
-			if (outindex == 0)
-				break;
-		}
-	}
-
-	*decompLenPtr = decompressed_size;
-	free(compressedAlloc);
-	return decompressedPtr;
+	return 1;
 }

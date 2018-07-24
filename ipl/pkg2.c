@@ -501,10 +501,10 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 			continue;
 		}
 
-		kip1_blz_footer footer;
+		blz_footer footer;
 		unsigned int compSize = hdr.sections[sectIdx].size_comp;
 		unsigned int outputSize = hdr.sections[sectIdx].size_decomp;
-		const kip1_blz_footer* compFooterPtr = kip1_blz_get_footer(srcDataPtr, compSize, &footer);
+		const blz_footer* compFooterPtr = blz_get_footer(srcDataPtr, compSize, &footer);
 		if (compFooterPtr == NULL)
 		{
 			gfx_printf(&gfx_con, "%kNo BLZ footer in comp sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
@@ -520,7 +520,7 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 			memset(&dstDataPtr[numCompBytes], 0, outputSize-numCompBytes);
 		}
 		
-		if (kip1_blz_uncompress(dstDataPtr, compSize, &footer) == 0)
+		if (blz_uncompress(dstDataPtr, compSize, &footer) == 0)
 		{
 			gfx_printf(&gfx_con, "%kERROR decomping sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
 			while (1) { }

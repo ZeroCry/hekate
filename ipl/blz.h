@@ -19,16 +19,18 @@
 
 #include "types.h"
 
-typedef struct _kip1_blz_footer
+typedef struct _blz_footer
 {
     u32 cmp_and_hdr_size;
     u32 header_size;
     u32 addl_size;
-} kip1_blz_footer;
+} blz_footer;
 
 //returns pointer to footer in compData if present, additionally copies it to outFooter if not NULL
-const kip1_blz_footer* kip1_blz_get_footer(const unsigned char* compData, unsigned int compDataLen, kip1_blz_footer* outFooter);
+const blz_footer* blz_get_footer(const unsigned char* compData, unsigned int compDataLen, blz_footer* outFooter);
 //returns 0 on failure
-int kip1_blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const kip1_blz_footer* footer);
+int blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer);
+//returns 0 on failure
+int blz_uncompress_srcdest(const unsigned char* compData, unsigned int compDataLen, unsigned char* dstData, unsigned int dstSize);
 
 #endif

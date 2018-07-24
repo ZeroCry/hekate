@@ -19,20 +19,20 @@
 #include <string.h>
 #include "blz.h"
 
-const kip1_blz_footer* kip1_blz_get_footer(const unsigned char* compData, unsigned int compDataLen, kip1_blz_footer* outFooter)
+const blz_footer* blz_get_footer(const unsigned char* compData, unsigned int compDataLen, blz_footer* outFooter)
 {
-	if (compDataLen < sizeof(kip1_blz_footer))
+	if (compDataLen < sizeof(blz_footer))
 		return NULL;
 
-	const kip1_blz_footer* srcFooter = (const kip1_blz_footer*)&compData[compDataLen-sizeof(kip1_blz_footer)];
+	const blz_footer* srcFooter = (const blz_footer*)&compData[compDataLen-sizeof(blz_footer)];
 	if (outFooter != NULL)
-		memcpy(outFooter, srcFooter, sizeof(kip1_blz_footer)); //must be a memcpy because no umaligned accesses on ARMv4
+		memcpy(outFooter, srcFooter, sizeof(blz_footer)); //must be a memcpy because no umaligned accesses on ARMv4
 
 	return srcFooter;
 }
 
 //from https://github.com/SciresM/hactool/blob/master/kip.c which is exactly how kernel does it, thanks SciresM!
-int kip1_blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const kip1_blz_footer* footer) 
+int blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer) 
 {
     u32 addl_size = footer->addl_size;
     u32 header_size = footer->header_size;
@@ -79,4 +79,16 @@ int kip1_blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const kip
     }
 
 	return 1;
+}
+
+int blz_uncompress_srcdest(const unsigned char* compData, unsigned int compDataLen, unsigned char* dstData, unsigned int dstSize)
+{
+    blz_footer footer;
+    if (blz_get_footer(compData, compDataLen, &footer) == NULL)
+        return 0;
+
+    memcpy(dstData, compData, compDataLen);
+    memset(&dstData[compDataLen], 0, dstSize-compDataLen);
+
+    return blz_uncompress(dstData, compDataLen, &footer);
 }

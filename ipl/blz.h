@@ -29,7 +29,7 @@ typedef struct _blz_footer
 //returns pointer to footer in compData if present, additionally copies it to outFooter if not NULL
 const blz_footer* blz_get_footer(const unsigned char* compData, unsigned int compDataLen, blz_footer* outFooter);
 //returns 0 on failure
-int blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer);
+int blz_uncompress_inplace(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer);
 //returns 0 on failure
 int blz_uncompress_srcdest(const unsigned char* compData, unsigned int compDataLen, unsigned char* dstData, unsigned int dstSize);
 

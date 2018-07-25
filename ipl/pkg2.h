@@ -115,8 +115,8 @@ typedef struct _pkg2_kernel_id_t
 
 typedef struct _kip1_patch_t
 {
-	u32 offset; //in the decompressed kip1 file, 0 means end
-	u32 length; //in bytes
+	u32 offset; //section+offset of patch to apply
+	u32 length; //in bytes, 0 means last patch
 	const char* srcData; //that must match
 	const char* dstData; //that it gets replaced by
 } kip1_patch_t;

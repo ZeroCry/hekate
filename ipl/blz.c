@@ -32,7 +32,7 @@ const blz_footer* blz_get_footer(const unsigned char* compData, unsigned int com
 }
 
 //from https://github.com/SciresM/hactool/blob/master/kip.c which is exactly how kernel does it, thanks SciresM!
-int blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer) 
+int blz_uncompress_inplace(unsigned char* dataBuf, unsigned int compSize, const blz_footer* footer) 
 {
     u32 addl_size = footer->addl_size;
     u32 header_size = footer->header_size;
@@ -84,11 +84,14 @@ int blz_uncompress(unsigned char* dataBuf, unsigned int compSize, const blz_foot
 int blz_uncompress_srcdest(const unsigned char* compData, unsigned int compDataLen, unsigned char* dstData, unsigned int dstSize)
 {
     blz_footer footer;
-    if (blz_get_footer(compData, compDataLen, &footer) == NULL)
+    const blz_footer* compFooterPtr = blz_get_footer(compData, compDataLen, &footer);
+    if (compFooterPtr == NULL)
         return 0;
 
-    memcpy(dstData, compData, compDataLen);
-    memset(&dstData[compDataLen], 0, dstSize-compDataLen);
+    //decompression must be done in-place, so need to copy the relevant compressed data first
+    unsigned int numCompBytes = (const unsigned char*)(compFooterPtr)-compData;
+    memcpy(dstData, compData, numCompBytes);
+    memset(&dstData[numCompBytes], 0, dstSize-numCompBytes);
 
-    return blz_uncompress(dstData, compDataLen, &footer);
+    return blz_uncompress_inplace(dstData, compDataLen, &footer);
 }

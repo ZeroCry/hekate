@@ -225,10 +225,27 @@ static const pkg2_kernel_id_t _pkg2_kernel_ids[] =
 	{ 0, 0 }                              //End.
 };
 
+enum kip_offset_section
+{
+	KIP_TEXT = 0,
+	KIP_RODATA = 1,
+	KIP_DATA = 2,
+	KIP_BSS = 3,
+	KIP_UNKSEC1 = 4,
+	KIP_UNKSEC2 = 5
+};
+
+#define KIP_PATCH_SECTION_SHIFT (29)
+#define KIP_PATCH_SECTION_MASK (7 << KIP_PATCH_SECTION_SHIFT)
+#define KIP_PATCH_OFFSET_MASK (~KIP_PATCH_SECTION_MASK)
+#define GET_KIP_PATCH_SECTION(x) ((x >> KIP_PATCH_SECTION_SHIFT) & 7)
+#define GET_KIP_PATCH_OFFSET(x) (x & KIP_PATCH_OFFSET_MASK)
+#define KPS(x) ((u32)(x) << KIP_PATCH_SECTION_SHIFT)
+
 static kip1_patch_t _fs_nosigchk_100[] = 
 {
-	{ 0x195A0, 4, "\xBA\x09\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x3A89C, 4, "\xE0\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x194A0, 4, "\xBA\x09\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x3A79C, 4, "\xE0\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -241,8 +258,8 @@ static kip1_patchset_t _fs_patches_100[] =
 
 static kip1_patch_t _fs_nosigchk_200[] = 
 {
-	{ 0x15EF4, 4, "\xBC\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x3F820, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x15DF4, 4, "\xBC\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x3F720, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -255,8 +272,8 @@ static kip1_patchset_t _fs_patches_200[] =
 
 static kip1_patch_t _fs_nosigchk_210[] = 
 {
-	{ 0x16064, 4, "\xDF\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x3FBF8, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x15F64, 4, "\xDF\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x3FAF8, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -269,8 +286,8 @@ static kip1_patchset_t _fs_patches_210[] =
 
 static kip1_patch_t _fs_nosigchk_300[] = 
 {
-	{ 0x18F24, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x49FC8, 4, "\x40\x04\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x18E24, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x49EC8, 4, "\x40\x04\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -283,8 +300,8 @@ static kip1_patchset_t _fs_patches_300[] =
 
 static kip1_patch_t _fs_nosigchk_30x[] = 
 {
-	{ 0x18F90, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x4A034, 4, "\xE0\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x18E90, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x49F34, 4, "\xE0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -297,15 +314,15 @@ static kip1_patchset_t _fs_patches_30x[] =
 
 static kip1_patch_t _fs_nosigchk_4xx[] = 
 {
-	{ 0x1C5FC, 4, "\x3C\x2F\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x57A34, 4, "\xE0\x02\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x1C4FC, 4, "\x3C\x2F\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x57934, 4, "\xE0\x02\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
 static kip1_patch_t _fs_nogc_40x[] = 
 {
-	{ 0xA3558, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
-	{ 0xAAD98, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0xA3458, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
+	{ KPS(KIP_TEXT) | 0xAAC98, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -318,8 +335,8 @@ static kip1_patchset_t _fs_patches_40x[] =
 
 static kip1_patch_t _fs_nogc_410[] = 
 {
-	{ 0xA35BC, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
-	{ 0xAADFC, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0xA34BC, 4, "\x14\x40\x80\x72", "\x14\x80\x80\x72" },
+	{ KPS(KIP_TEXT) | 0xAACFC, 8, "\x80\x02\xA0\x52\x40\x40\x91\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -332,15 +349,15 @@ static kip1_patchset_t _fs_patches_410[] =
 
 static kip1_patch_t _fs_nosigchk_50x[] = 
 {
-	{ 0x22EDC, 4, "\x7D\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x7D590, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x22DDC, 4, "\x7D\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x7D490, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
 static kip1_patch_t _fs_nogc_50x[] = 
 {
-	{ 0xCF4C4, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
-	{ 0xD75FC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0xCF3C4, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
+	{ KPS(KIP_TEXT) | 0xD74FC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -353,15 +370,15 @@ static kip1_patchset_t _fs_patches_50x[] =
 
 static kip1_patch_t _fs_nosigchk_510[] = 
 {
-	{ 0x22F0C, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
-	{ 0x7D960, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0x22E0C, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x7D860, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
 static kip1_patch_t _fs_nogc_510[] = 
 {
-	{ 0xCF894, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
-	{ 0xD79CC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
+	{ KPS(KIP_TEXT) | 0xCF794, 4, "\x14\x40\x80\x52", "\x14\x80\x80\x52" },
+	{ KPS(KIP_TEXT) | 0xD78CC, 8, "\x40\x40\x91\x52\x80\x02\xA0\x72", "\xE0\x03\x1F\x2A\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
@@ -465,9 +482,10 @@ void pkg2_merge_kip(link_t *info, pkg2_kip1_t *kip1)
 		pkg2_add_kip(info, kip1);
 }
 
-void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
+void pkg2_decompress_kip(pkg2_kip1_info_t* ki, u32 sectsToDecomp)
 {
-	if ((ki->kip1->flags & 0xF8) == ki->kip1->flags)
+	u32 compClearMask = ~sectsToDecomp;
+	if ((ki->kip1->flags & compClearMask) == ki->kip1->flags)
 		return; //already decompressed, nothing to do
 
 	pkg2_kip1_t hdr;
@@ -476,20 +494,22 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 	unsigned int newKipSize = sizeof(hdr);
 	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
 	{
-		//compressed, cant get actual decompressed size without doing it, so use safe "output size"
-		if (sectIdx < 3 && (hdr.flags & (1u << sectIdx))) 
+		u32 sectCompBit = 1u << sectIdx;
+		//for compressed, cant get actual decompressed size without doing it, so use safe "output size"
+		if (sectIdx < 3 && (sectsToDecomp & sectCompBit) && (hdr.flags & sectCompBit)) 
 			newKipSize += hdr.sections[sectIdx].size_decomp;
 		else
 			newKipSize += hdr.sections[sectIdx].size_comp;
 	}
-	pkg2_kip1_t* newKip = malloc(newKipSize);
-	
+
+	pkg2_kip1_t* newKip = malloc(newKipSize);	
 	unsigned char* dstDataPtr = newKip->data;
 	const unsigned char* srcDataPtr = ki->kip1->data;
 	for (u32 sectIdx=0; sectIdx<KIP1_NUM_SECTIONS; sectIdx++)
 	{
-		//easy path for uncompressed
-		if (sectIdx >= 3 || (hdr.flags & (1u << sectIdx)) == 0)
+		u32 sectCompBit = 1u << sectIdx;
+		//easy copy path for uncompressed or ones we dont want to uncompress
+		if (sectIdx >= 3 || !(sectsToDecomp & sectCompBit) || !(hdr.flags & sectCompBit))
 		{
 			unsigned int dataSize = hdr.sections[sectIdx].size_comp;
 			if (dataSize == 0)
@@ -501,26 +521,10 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 			continue;
 		}
 
-		blz_footer footer;
 		unsigned int compSize = hdr.sections[sectIdx].size_comp;
 		unsigned int outputSize = hdr.sections[sectIdx].size_decomp;
-		const blz_footer* compFooterPtr = blz_get_footer(srcDataPtr, compSize, &footer);
-		if (compFooterPtr == NULL)
-		{
-			gfx_printf(&gfx_con, "%kNo BLZ footer in comp sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
-			while (1) { }
-		}
-
 		gfx_printf(&gfx_con, "Decomping %s KIP1 sect %d of size %d...\n", (const char*)hdr.name, sectIdx, compSize);
-
-		//decompression must be done in-place, so need a copy first
-		{
-			unsigned int numCompBytes = (const unsigned char*)(compFooterPtr)-srcDataPtr;
-			memcpy(dstDataPtr, srcDataPtr, numCompBytes);
-			memset(&dstDataPtr[numCompBytes], 0, outputSize-numCompBytes);
-		}
-		
-		if (blz_uncompress(dstDataPtr, compSize, &footer) == 0)
+		if (blz_uncompress_srcdest(srcDataPtr, compSize, dstDataPtr, outputSize) == 0)
 		{
 			gfx_printf(&gfx_con, "%kERROR decomping sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
 			while (1) { }
@@ -534,7 +538,7 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki)
 		dstDataPtr += outputSize;
 	}
 
-	hdr.flags &= 0xF8;
+	hdr.flags &= compClearMask;
 	memcpy(newKip, &hdr, sizeof(hdr));
 	newKipSize = dstDataPtr-(unsigned char*)(newKip);
 
@@ -600,21 +604,21 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 	u32 shaBuf[32/sizeof(u32)];
 	LIST_FOREACH_ENTRY(pkg2_kip1_info_t, ki, info, link)
 	{
-		memset(shaBuf, 0, sizeof(shaBuf)); //sha256 for this kip not yet calculated
+		shaBuf[0] = 0; //sha256 for this kip not yet calculated
 		for (u32 currKipIdx=0; currKipIdx<(sizeof(_kip_ids)/sizeof(_kip_ids[0])); currKipIdx++)
 		{
 			if (strncmp((const char*)ki->kip1->name, _kip_ids[currKipIdx].name, sizeof(ki->kip1->name)) != 0)
 				continue;
 
-			u32 numPatchesEnabled = 0;
+			u32 bitsAffected = 0;
 			kip1_patchset_t* currPatchset = _kip_ids[currKipIdx].patchset;
 			while (currPatchset != NULL && currPatchset->name != NULL)
 			{
 				for (u32 i=0; i<numPatches; i++)
 				{
-					if (strcmp(currPatchset->name, patches[i]) == 0)
+					if (strcmp(currPatchset->name, patches[i]) != 0)
 					{
-						numPatchesEnabled++;
+						bitsAffected++;
 						break;
 					}
 				}
@@ -622,7 +626,7 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 			}
 
 			// dont bother even hashing this KIP if we dont have any patches enabled for it
-			if (numPatchesEnabled == 0)
+			if (bitsAffected == 0)
 				continue;
 
 			if (shaBuf[0] == 0)
@@ -634,11 +638,30 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 			if (memcmp(shaBuf, _kip_ids[currKipIdx].hash, sizeof(_kip_ids[0].hash)) != 0)
 				continue;
 
+			//find out which sections are affected by the enabled patches, to know which to decompress
+			bitsAffected = 0;
+			currPatchset = _kip_ids[currKipIdx].patchset;
+			while (currPatchset != NULL && currPatchset->name != NULL)
+			{
+				if (currPatchset->patches != NULL)
+				{
+					for (u32 currEnabIdx=0; currEnabIdx<numPatches; currEnabIdx++)
+					{
+						if (strcmp(currPatchset->name, patches[currEnabIdx]))
+							continue;
+
+						for (const kip1_patch_t* currPatch=currPatchset->patches; currPatch != NULL && currPatch->length != 0; currPatch++)
+							bitsAffected |= 1u << GET_KIP_PATCH_SECTION(currPatch->offset);
+					}
+				}		
+				currPatchset++;
+			}
+
 			// got patches to apply to this kip, have to decompress it
 #ifdef DEBUG_PRINTING
 			u32 preDecompTime = get_tmr_us();
 #endif
-			pkg2_decompress_kip(ki);
+			pkg2_decompress_kip(ki, bitsAffected);
 
 #ifdef DEBUG_PRINTING
 			u32 postDecompTime = get_tmr_us();
@@ -648,7 +671,6 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 			DPRINTF("%dms %s KIP1 size %d hash %08X\n", (postDecompTime-preDecompTime)/1000, ki->kip1->name, (int)ki->size, __builtin_bswap32(shaBuf[0]));
 #endif
 
-			unsigned char* kipData = (unsigned char*)ki->kip1;
 			currPatchset = _kip_ids[currKipIdx].patchset;
 			while (currPatchset != NULL && currPatchset->name != NULL)
 			{
@@ -665,24 +687,35 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 						break;
 					}
 
-					gfx_printf(&gfx_con, "Applying patch '%s' on %s KIP1...\n", currPatchset->name, (const char*)ki->kip1->name);
-					
-					const kip1_patch_t* currPatch=currPatchset->patches;
-					while (currPatch != NULL && currPatch->offset != 0)
+					unsigned char* kipSectData = ki->kip1->data;
+					for (u32 currSectIdx=0; currSectIdx<KIP1_NUM_SECTIONS; currSectIdx++)
 					{
-						if (memcmp(&kipData[currPatch->offset], currPatch->srcData, currPatch->length) != 0)
+						if (bitsAffected & (1u << currSectIdx))
 						{
-							gfx_printf(&gfx_con, "%kDATA MISMATCH FOR PATCH AT OFFSET 0x%x!!!%k\n", 0xFFFF0000, currPatch->offset, 0xFFCCCCCC);
-							while (1) {} //MUST hang here, means the patch writer messed up
+							gfx_printf(&gfx_con, "Applying patch '%s' on %s KIP1 sect %d\n", currPatchset->name, (const char*)ki->kip1->name, currSectIdx);
+							for (const kip1_patch_t* currPatch=currPatchset->patches;currPatch != NULL && currPatch->length != 0; currPatch++)
+							{
+								if (GET_KIP_PATCH_SECTION(currPatch->offset) != currSectIdx)
+									continue;
+
+								u32 currOffset = GET_KIP_PATCH_OFFSET(currPatch->offset);
+								if (memcmp(&kipSectData[currOffset], currPatch->srcData, currPatch->length) != 0)
+								{
+									gfx_printf(&gfx_con, "%kDATA MISMATCH FOR PATCH AT OFFSET 0x%x!!!%k\n", 0xFFFF0000, currOffset, 0xFFCCCCCC);
+									while (1) {} //MUST hang here, means the patch writer messed up
+								}
+								else
+								{
+									DPRINTF("Patching %d bytes at offset 0x%x\n", currPatch->length, currOffset);
+									memcpy(&kipSectData[currOffset], currPatch->dstData, currPatch->length);
+								}
+							}
 						}
-						else
-						{
-							DPRINTF("Patching %d bytes at offset 0x%x\n", currPatch->length, currPatch->offset);
-							memcpy(&kipData[currPatch->offset], currPatch->dstData, currPatch->length);
-						}
-						currPatch++;
+						kipSectData += ki->kip1->sections[currSectIdx].size_comp;
 					}
+					
 					patchesApplied |= appliedMask;
+					break;
 				}
 				currPatchset++;
 			}

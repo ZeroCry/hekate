@@ -573,7 +573,8 @@ int hos_launch(ini_sec_t *cfg)
 	if (unappliedPatch != NULL)
 	{
 		gfx_printf(&gfx_con, "%kREQUESTED PATCH '%s' NOT APPLIED!%k\n", 0xFFFF0000, unappliedPatch, 0xFFCCCCCC);
-		while(1) {} //MUST hang here, because if user requests 'nogc' but it's not applied, their GC controller gets updated!
+		sd_unmount(); //just exiting is not enough until pkg2_patch_kips stops modifying the string passed into it
+		while(1) {} //MUST stop here, because if user requests 'nogc' but it's not applied, their GC controller gets updated!
 	}
 
 	// Rebuild and encrypt package2.

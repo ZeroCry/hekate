@@ -482,11 +482,11 @@ void pkg2_merge_kip(link_t *info, pkg2_kip1_t *kip1)
 		pkg2_add_kip(info, kip1);
 }
 
-void pkg2_decompress_kip(pkg2_kip1_info_t* ki, u32 sectsToDecomp)
+int pkg2_decompress_kip(pkg2_kip1_info_t* ki, u32 sectsToDecomp)
 {
 	u32 compClearMask = ~sectsToDecomp;
 	if ((ki->kip1->flags & compClearMask) == ki->kip1->flags)
-		return; //already decompressed, nothing to do
+		return 0; //already decompressed, nothing to do
 
 	pkg2_kip1_t hdr;
 	memcpy(&hdr, ki->kip1, sizeof(hdr));
@@ -527,7 +527,8 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki, u32 sectsToDecomp)
 		if (blz_uncompress_srcdest(srcDataPtr, compSize, dstDataPtr, outputSize) == 0)
 		{
 			gfx_printf(&gfx_con, "%kERROR decomping sect %d of %s KIP!%k\n", 0xFFFF0000, sectIdx, (char*)hdr.name, 0xFFCCCCCC);			
-			while (1) { }
+			free(newKip);
+			return 1;
 		}
 		else
 		{
@@ -545,6 +546,7 @@ void pkg2_decompress_kip(pkg2_kip1_info_t* ki, u32 sectsToDecomp)
 	free(ki->kip1);
 	ki->kip1 = newKip;
 	ki->size = newKipSize;
+	return 0;
 }
 
 const char* pkg2_patch_kips(link_t *info, char* patchNames)
@@ -618,7 +620,7 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 				{
 					if (strcmp(currPatchset->name, patches[i]) != 0)
 					{
-						bitsAffected++;
+						bitsAffected = i+1;
 						break;
 					}
 				}
@@ -661,7 +663,8 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 #ifdef DEBUG_PRINTING
 			u32 preDecompTime = get_tmr_us();
 #endif
-			pkg2_decompress_kip(ki, bitsAffected);
+			if (pkg2_decompress_kip(ki, bitsAffected))
+				return (const char*)ki->kip1->name; //failed to decompress
 
 #ifdef DEBUG_PRINTING
 			u32 postDecompTime = get_tmr_us();
@@ -702,7 +705,7 @@ const char* pkg2_patch_kips(link_t *info, char* patchNames)
 								if (memcmp(&kipSectData[currOffset], currPatch->srcData, currPatch->length) != 0)
 								{
 									gfx_printf(&gfx_con, "%kDATA MISMATCH FOR PATCH AT OFFSET 0x%x!!!%k\n", 0xFFFF0000, currOffset, 0xFFCCCCCC);
-									while (1) {} //MUST hang here, means the patch writer messed up
+									return currPatchset->name; //MUST stop here as kip is likely corrupt
 								}
 								else
 								{

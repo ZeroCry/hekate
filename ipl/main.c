@@ -1934,7 +1934,7 @@ void auto_launch_firmware()
 	{
 		BOOTLOGO = (void *)malloc(0x4000);
 		blz_uncompress_srcdest(BOOTLOGO_BLZ, SZ_BOOTLOGO_BLZ, BOOTLOGO, SZ_BOOTLOGO);
-		gfx_set_rect_grey(&gfx_ctxt, BOOTLOGO, X_BOOTLOGO, Y_BOOTLOGO, 326, 544);
+		gfx_set_rect_colorized(&gfx_ctxt, BOOTLOGO, X_BOOTLOGO, Y_BOOTLOGO, 334, 544, 0xB5DE42);
 		free(BOOTLOGO);
 	}
 	free(BOOTLOGO);

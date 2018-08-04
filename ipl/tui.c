@@ -23,10 +23,8 @@
 
 #ifdef MENU_LOGO_ENABLE
 extern u8 *Kc_MENU_LOGO;
-#define X_MENU_LOGO       119
-#define Y_MENU_LOGO        57
-#define X_POS_MENU_LOGO   577
-#define Y_POS_MENU_LOGO  1179
+#define NO_LOGO_DATAS
+#include "hekate_logos.h"
 #endif //MENU_LOGO_ENABLE
 
 extern hekate_config h_cfg;
@@ -101,8 +99,8 @@ void *tui_do_menu(gfx_con_t *con, menu_t *menu)
 	tui_sbar(con, 1);
 
 #ifdef MENU_LOGO_ENABLE
-	gfx_set_rect_rgb(con->gfx_ctxt, Kc_MENU_LOGO,
-		X_MENU_LOGO, Y_MENU_LOGO, X_POS_MENU_LOGO, Y_POS_MENU_LOGO);
+	gfx_set_rect_grey(con->gfx_ctxt, Kc_MENU_LOGO,
+		MENU_LOGO_W, MENU_LOGO_H, MENU_LOGO_X, MENU_LOGO_Y);
 #endif //MENU_LOGO_ENABLE
 
 	while (1)
@@ -193,8 +191,8 @@ void *tui_do_menu(gfx_con_t *con, menu_t *menu)
 			con->fntsz = 16;
 			gfx_clear_partial_grey(con->gfx_ctxt, 0x1B, 0, 1256);
 #ifdef MENU_LOGO_ENABLE
-			gfx_set_rect_rgb(con->gfx_ctxt, Kc_MENU_LOGO,
-				X_MENU_LOGO, Y_MENU_LOGO, X_POS_MENU_LOGO, Y_POS_MENU_LOGO);
+			gfx_set_rect_grey(con->gfx_ctxt, Kc_MENU_LOGO,
+				MENU_LOGO_W, MENU_LOGO_H, MENU_LOGO_X, MENU_LOGO_Y);
 #endif //MENU_LOGO_ENABLE
 		}
 		tui_sbar(con, 0);

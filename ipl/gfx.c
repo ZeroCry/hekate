@@ -490,6 +490,28 @@ void gfx_set_rect_grey(gfx_ctxt_t *ctxt, const u8 *buf, u32 size_x, u32 size_y, 
 	}
 }
 
+void gfx_set_rect_colorized(gfx_ctxt_t *ctxt, const u8 *buf, u32 size_x, u32 size_y, u32 pos_x, u32 pos_y, u32 color)
+{
+	u32 colR = (color >> 0) & 0xFF;
+	u32 colG = (color >> 8) & 0xFF;
+	u32 colB = (color >> 16) & 0xFF;
+	u32 pos = 0;
+	for (u32 y = pos_y; y < (pos_y + size_y); y++)
+	{
+		for (u32 x = pos_x; x < (pos_x + size_x); x++)
+		{
+			u32 srcColor = buf[pos];
+			u32 newColor = (srcColor * colR) >> 8;
+			newColor <<= 8;
+			newColor |= (srcColor * colG) >> 8;
+			newColor <<= 8;
+			newColor |= (srcColor * colB) >> 8;
+
+			ctxt->fb[x + y*ctxt->stride] = newColor;
+			pos++;
+		}
+	}
+}
 
 void gfx_set_rect_rgb(gfx_ctxt_t *ctxt, const u8 *buf, u32 size_x, u32 size_y, u32 pos_x, u32 pos_y)
 {

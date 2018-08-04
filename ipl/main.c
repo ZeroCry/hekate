@@ -1713,7 +1713,7 @@ void launch_firmware()
 
 	if (sd_mount())
 	{
-		if (ini_parse(&ini_sections, "hekate_ipl.ini"))
+		if (ini_parse(&ini_sections, "rajnx_ipl.ini"))
 		{
 			// Build configuration menu.
 			ment_t *ments = (ment_t *)malloc(sizeof(ment_t) * (max_entries + 3));
@@ -1758,7 +1758,7 @@ void launch_firmware()
 			ini_free(&ini_sections);
 		}
 		else
-			EPRINTF("Could not find or open 'hekate_ipl.ini'.\nMake sure it exists in SD Card!.");
+			EPRINTF("Could not find or open 'rajnx_ipl.ini'.\nMake sure it exists on your microSD!.");
 	}
 
 	if (!cfg_sec)
@@ -1814,7 +1814,7 @@ void auto_launch_firmware()
 
 	if (sd_mount())
 	{
-		if (ini_parse(&ini_sections, "hekate_ipl.ini"))
+		if (ini_parse(&ini_sections, "rajnx_ipl.ini"))
 		{
 			u32 configEntry = 0;
 			u32 boot_entry_id = 0;
@@ -1868,7 +1868,7 @@ void auto_launch_firmware()
 				goto out; // No configurations.
 		}
 		else
-			goto out; // Can't load hekate_ipl.ini.
+			goto out; // Can't load rajnx_ipl.ini.
 	}
 	else
 		goto out;

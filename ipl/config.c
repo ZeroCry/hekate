@@ -56,9 +56,9 @@ int create_config_entry()
 
 	LIST_INIT(ini_sections);
 
-	if (ini_parse(&ini_sections, "hekate_ipl.ini"))
+	if (ini_parse(&ini_sections, "rajnx_ipl.ini"))
 	{
-		if (f_open(&fp, "hekate_ipl.ini", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
+		if (f_open(&fp, "rajnx_ipl.ini", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
 			return 0;
 		// Add config entry.
 		f_puts("[config]\nautoboot=", &fp);
@@ -144,7 +144,7 @@ void config_autoboot()
 
 	if (sd_mount())
 	{
-		if (ini_parse(&ini_sections, "hekate_ipl.ini"))
+		if (ini_parse(&ini_sections, "rajnx_ipl.ini"))
 		{
 			ini_freed = 0;
 
@@ -220,7 +220,7 @@ void config_autoboot()
 		}
 		else
 		{
-			EPRINTF("Could not find or open 'hekate_ipl.ini'.\nMake sure it exists in SD Card!.");
+			EPRINTF("Could not find or open 'rajnx_ipl.ini'.\nMake sure it exists on your microSD!.");
 			goto out;
 		}
 	}

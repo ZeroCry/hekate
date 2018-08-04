@@ -8,7 +8,7 @@ Custom Nintendo Switch bootloader, firmware patcher, and more.
 
 ## IPL configuration
 
-The ipl can be configured via 'hekate_ipl.ini' (if it is present on the SD card). Each ini section represents a boot entry, except for the special section 'config' that controls the global configuration.
+The ipl can be configured via 'rajnx_ipl.ini' (if it is present on the SD card). Each ini section represents a boot entry, except for the special section 'config' that controls the global configuration.
 
 
 There are four possible type of entries. "**[ ]**": Boot entry, "**{ }**": Caption, "**#**": Comment, "*newline*": .ini cosmetic newline.

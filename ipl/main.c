@@ -2393,12 +2393,14 @@ void about()
 	static const char credits[] =
 	"\nhekate     (C) 2018 naehrwert, st4rk\n\n"
 	"CTCaer mod (C) 2018 CTCaer\n"
+	"RajNX edition (C) 2018 rajkosto\n"
 	" ___________________________________________\n\n"
 	"Thanks to: %kderrek, nedwill, plutoo,\n"
 	"           shuffle2, smea, thexyz, yellows8%k\n"
 	" ___________________________________________\n\n"
 	"Greetings to: fincs, hexkyz, SciresM,\n"
-	"              Shiny Quagsire, WinterMute\n"
+	"              Shiny Quagsire, WinterMute,\n"
+	"              King of Skeletons - Egypt\n"
 	" ___________________________________________\n\n"
 	"Open source and free packages used:\n\n"
 	" - FatFs R0.13b,\n"
@@ -2426,7 +2428,8 @@ void about()
 	"     , _.-'.'\\ \\        / /    ( (     / /\n"
 	"      `--'`   ) )    .-'.'      '.'.  | (\n"
 	"             (/`    ( (`          ) )  '-;   %k[switchbrew]%k\n"
-	"              `      '-;         (-'%k";
+	"              `      '-;         (-'\n\n"
+	"We must drink the cursed red liquid from the dark sarcophagus%k";
 
 	gfx_clear_grey(&gfx_ctxt, 0x1B);
 	gfx_con_setpos(&gfx_con, 0, 0);
@@ -2572,7 +2575,7 @@ ment_t ment_top[] = {
 };
 menu_t menu_top = {
 	ment_top,
-	"hekate - CTCaer mod v3.2", 0, 0
+	"hekate - RajNX edition v0.7.0", 0, 0
 };
 
 extern void pivot_stack(u32 stack_top);

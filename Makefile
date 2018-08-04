@@ -4,7 +4,7 @@ endif
 
 include $(DEVKITARM)/base_rules
 
-TARGET := ipl
+TARGET := rajnx_ipl
 BUILD := build_ipl
 SOURCEDIR := ipl
 OBJS = $(addprefix $(BUILD)/, \

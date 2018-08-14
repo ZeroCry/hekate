@@ -2676,7 +2676,7 @@ ment_t ment_top[] = {
 };
 menu_t menu_top = {
 	ment_top,
-	"hekate - RajNX edition v0.7.2", 0, 0
+	"hekate - RajNX edition v0.7.3", 0, 0
 };
 
 extern void pivot_stack(u32 stack_top);

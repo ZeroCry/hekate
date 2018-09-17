@@ -423,14 +423,14 @@ static kip1_patchset_t _fs_patches_510[] =
 
 static kip1_patch_t _fs_nosigchk_600[] = 
 {
-	{ KPS(KIP_TEXT) | 0x712A8, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x712A8, 4, "\x8E\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0xEB08C, 4, "\xC0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };
 
 static kip1_patch_t _fs_nosigchk_600_exfat[] = 
 {
-	{ KPS(KIP_TEXT) | 0x7C9A8, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
+	{ KPS(KIP_TEXT) | 0x7C9A8, 4, "\x8E\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0xF678C, 4, "\xC0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
 };

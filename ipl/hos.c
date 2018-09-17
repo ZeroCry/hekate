@@ -216,7 +216,7 @@ int keygen(u8 *keyblob, u32 kb, void *tsec_fw)
 	return 1;
 }
 
-static void _copy_bootconfig()
+static void _copy_bootconfig(launch_ctxt_t* ctxt)
 {
 	sdmmc_storage_t storage;
 	sdmmc_t sdmmc;
@@ -224,11 +224,18 @@ static void _copy_bootconfig()
 	sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_4, SDMMC_BUS_WIDTH_8, 4);
 
 	// Read BCT.
-	u8 *buf = (u8 *)0x4003D000;
-	sdmmc_storage_set_mmc_partition(&storage, 1);
-	sdmmc_storage_read(&storage, 0, 0x3000 / NX_EMMC_BLOCKSIZE, buf);
+	u8* buf = (u8*)0x4003D000;
+	u32 bufSize = 0x3000;
+	if (ctxt->pkg1_id->kb >= KB_FIRMWARE_VERSION_600)
+	{
+		buf = (u8*)0x4003F800;
+		bufSize = 0x1000;
+	}
 
-	gfx_printf(&gfx_con, "Copied BCT to 0x4003D000\n");
+	sdmmc_storage_set_mmc_partition(&storage, 1);
+	sdmmc_storage_read(&storage, 0, bufSize / NX_EMMC_BLOCKSIZE, buf);
+
+	gfx_printf(&gfx_con, "Copied BCT to IRAM\n");
 
 	sdmmc_storage_end(&storage);
 }
@@ -639,7 +646,11 @@ int hos_launch(ini_sec_t *cfg)
 	_free_launch_components(&ctxt);
 
 	// Copy BCT if debug mode is enabled.
-	//memset((void *)0x4003D000, 0, 0x3000);
+	if (ctxt.pkg1_id->kb < KB_FIRMWARE_VERSION_600)
+		memset((void *)0x4003D000, 0, 0x3000);
+	else
+		memset((void *)0x4003F800, 0, 0x1000);
+
 	if(ctxt.debugmode)
 		_copy_bootconfig(&ctxt);
 

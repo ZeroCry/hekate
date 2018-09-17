@@ -214,6 +214,11 @@ KERNEL_PATCHSET_DEF(_kernel_5_patchset,
 		_B(FREE_CODE_OFF_2ND_500 + sizeof(PRC_ID_RCV_500), ID_RCV_OFF_500 + 8), NULL}
 );
 
+KERNEL_PATCHSET_DEF(_kernel_6_patchset,
+	{ SVC_VERIFY_DS, 0x47EA0, _NOP(), NULL },          // Disable SVC verifications
+	{ DEBUG_MODE_EN, 0x57548, _MOVZX(8, 1, 0), NULL } // Enable Debug Patch
+);
+
 static const pkg2_kernel_id_t _pkg2_kernel_ids[] =
 {
 	{ 0x427f2647, _kernel_1_patchset },   //1.0.0
@@ -222,6 +227,7 @@ static const pkg2_kernel_id_t _pkg2_kernel_ids[] =
 	{ 0xe0e8cdc4, _kernel_302_patchset }, //3.0.2
 	{ 0x485d0157, _kernel_4_patchset },   //4.0.0 - 4.1.0
 	{ 0xf3c363f2, _kernel_5_patchset },   //5.0.0 - 5.1.0
+	{ 0x64ce1a44, _kernel_6_patchset },   //6.0.0 - 6.0.0
 	{ 0, 0 }                              //End.
 };
 

@@ -216,30 +216,6 @@ int keygen(u8 *keyblob, u32 kb, void *tsec_fw)
 	return 1;
 }
 
-static void _copy_bootconfig(launch_ctxt_t* ctxt)
-{
-	sdmmc_storage_t storage;
-	sdmmc_t sdmmc;
-
-	sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_4, SDMMC_BUS_WIDTH_8, 4);
-
-	// Read BCT.
-	u8* buf = (u8*)0x4003D000;
-	u32 bufSize = 0x3000;
-	if (ctxt->pkg1_id->kb >= KB_FIRMWARE_VERSION_600)
-	{
-		buf = (u8*)0x4003F800;
-		bufSize = 0x1000;
-	}
-
-	sdmmc_storage_set_mmc_partition(&storage, 1);
-	sdmmc_storage_read(&storage, 0, bufSize / NX_EMMC_BLOCKSIZE, buf);
-
-	gfx_printf(&gfx_con, "Copied BCT to IRAM\n");
-
-	sdmmc_storage_end(&storage);
-}
-
 static int _read_emmc_pkg1(launch_ctxt_t *ctxt)
 {
 	int res = 0;
@@ -271,17 +247,20 @@ out:;
 	return res;
 }
 
-static int _read_emmc_pkg2(launch_ctxt_t *ctxt)
+static u8* _read_emmc_pkg2(launch_ctxt_t *ctxt)
 {
-	int res = 0;
+	u8* bootConfigBuf = NULL;
 	sdmmc_storage_t storage;
 	sdmmc_t sdmmc;
 
-	sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_4, SDMMC_BUS_WIDTH_8, 4);
-	sdmmc_storage_set_mmc_partition(&storage, 0);
+	if (!sdmmc_storage_init_mmc(&storage, &sdmmc, SDMMC_4, SDMMC_BUS_WIDTH_8, 4))
+		return NULL;
+
+	LIST_INIT(gpt);
+	if (!sdmmc_storage_set_mmc_partition(&storage, 0))
+		goto out;
 
 	// Parse eMMC GPT.
-	LIST_INIT(gpt);
 	nx_emmc_gpt_parse(&gpt, &storage);
 	DPRINTF("Parsed GPT\n");
 	// Find package2 partition.
@@ -290,27 +269,26 @@ static int _read_emmc_pkg2(launch_ctxt_t *ctxt)
 		goto out;
 
 	// Read in package2 header and get package2 real size.
-	//TODO: implement memalign for DMA buffers.
-	u8 *tmp = (u8 *)malloc(NX_EMMC_BLOCKSIZE);
-	nx_emmc_part_read(&storage, pkg2_part, 0x4000 / NX_EMMC_BLOCKSIZE, 1, tmp);
-	u32 *hdr = (u32 *)(tmp + 0x100);
+	//TODO: implement memalign for DMA buffers
+	static const u32 BOOT_CONFIG_SIZE = 0x4000;	
+	bootConfigBuf = (u8*)malloc(BOOT_CONFIG_SIZE);
+	nx_emmc_part_read(&storage, pkg2_part, BOOT_CONFIG_SIZE / NX_EMMC_BLOCKSIZE, 1, bootConfigBuf);
+	u32 *hdr = (u32*)(bootConfigBuf + 0x100);
 	u32 pkg2_size = hdr[0] ^ hdr[2] ^ hdr[3];
-	free(tmp);
 	DPRINTF("pkg2 size on emmc is %08X\n", pkg2_size);
+	//Read in Boot Config
+	memset(bootConfigBuf, 0, BOOT_CONFIG_SIZE);
+	nx_emmc_part_read(&storage, pkg2_part, 0, BOOT_CONFIG_SIZE / NX_EMMC_BLOCKSIZE, bootConfigBuf);
 	//Read in package2.
 	u32 pkg2_size_aligned = ALIGN(pkg2_size, NX_EMMC_BLOCKSIZE);
 	DPRINTF("pkg2 size aligned is %08X\n", pkg2_size_aligned);
 	ctxt->pkg2 = malloc(pkg2_size_aligned);
 	ctxt->pkg2_size = pkg2_size;
-	nx_emmc_part_read(&storage, pkg2_part, 0x4000 / NX_EMMC_BLOCKSIZE, 
-		pkg2_size_aligned / NX_EMMC_BLOCKSIZE, ctxt->pkg2);
-
-	res = 1;
-
+	nx_emmc_part_read(&storage, pkg2_part, BOOT_CONFIG_SIZE / NX_EMMC_BLOCKSIZE, pkg2_size_aligned / NX_EMMC_BLOCKSIZE, ctxt->pkg2);
 out:;
 	nx_emmc_gpt_free(&gpt);
 	sdmmc_storage_end(&storage);
-	return res;
+	return bootConfigBuf;
 }
 
 static int _config_warmboot(launch_ctxt_t *ctxt, const char *value)
@@ -526,7 +504,8 @@ int hos_launch(ini_sec_t *cfg)
 	gfx_printf(&gfx_con, "Loaded warmboot.bin and secmon\n");
 
 	// Read package2.
-	if (!_read_emmc_pkg2(&ctxt))
+	u8* bootConfigBuf = _read_emmc_pkg2(&ctxt);
+	if (bootConfigBuf == NULL)
 		return 0;
 
 	gfx_printf(&gfx_con, "Read package2\n");
@@ -645,14 +624,18 @@ int hos_launch(ini_sec_t *cfg)
 	ini_free_section(cfg);
 	_free_launch_components(&ctxt);
 
-	// Copy BCT if debug mode is enabled.
+	// Copy BootConfig to appropriate IRAM location
 	if (ctxt.pkg1_id->kb < KB_FIRMWARE_VERSION_600)
+	{
 		memset((void *)0x4003D000, 0, 0x3000);
+		memcpy((void *)0x4003D000, bootConfigBuf, 0x3000);
+	}
 	else
-		memset((void *)0x4003F800, 0, 0x1000);
-
-	if(ctxt.debugmode)
-		_copy_bootconfig(&ctxt);
+	{
+		memset((void *)0x4003F000, 0, 0x1000);
+		memcpy((void *)0x4003F800, bootConfigBuf, 0x800);
+	}
+	free(bootConfigBuf); bootConfigBuf = NULL;
 
 	// Config Exosphère if booting Atmosphère.
 	if (ctxt.atmosphere)

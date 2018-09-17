@@ -41,11 +41,11 @@ static void _display_dsi_wait(u32 timeout, u32 off, u32 mask)
 
 void display_init()
 {
-	//Power on.
-	i2c_send_byte(I2C_5, 0x3C, MAX77620_REG_LDO0_CFG, 0xD0); //Configure to 1.2V.
+	// Power on.
+	i2c_send_byte(I2C_5, 0x3C, MAX77620_REG_LDO0_CFG, 0xD0); // Configure to 1.2V.
 	i2c_send_byte(I2C_5, 0x3C, MAX77620_REG_GPIO7, 0x09);
 
-	//Enable MIPI CAL, DSI, DISP1, HOST1X, UART_FST_MIPI_CAL, DSIA LP clocks.
+	// Enable MIPI CAL, DSI, DISP1, HOST1X, UART_FST_MIPI_CAL, DSIA LP clocks.
 	CLOCK(CLK_RST_CONTROLLER_RST_DEV_H_CLR) = 0x1010000;
 	CLOCK(CLK_RST_CONTROLLER_CLK_ENB_H_SET) = 0x1010000;
 	CLOCK(CLK_RST_CONTROLLER_RST_DEV_L_CLR) = 0x18000000;
@@ -55,32 +55,32 @@ void display_init()
 	CLOCK(CLK_RST_CONTROLLER_CLK_ENB_W_SET) = 0x80000;
 	CLOCK(CLK_RST_CONTROLLER_CLK_SOURCE_DSIA_LP) = 0xA;
 
-	//DPD idle.
+	// DPD idle.
 	PMC(APBDEV_PMC_IO_DPD_REQ) = 0x40000000;
 	PMC(APBDEV_PMC_IO_DPD2_REQ) = 0x40000000;
 
-	//Config pins.
+	// Config pins.
 	PINMUX_AUX(PINMUX_AUX_NFC_EN) &= ~PINMUX_TRISTATE;
 	PINMUX_AUX(PINMUX_AUX_NFC_INT) &= ~PINMUX_TRISTATE;
 	PINMUX_AUX(PINMUX_AUX_LCD_BL_PWM) &= ~PINMUX_TRISTATE;
 	PINMUX_AUX(PINMUX_AUX_LCD_BL_EN) &= ~PINMUX_TRISTATE;
 	PINMUX_AUX(PINMUX_AUX_LCD_RST) &= ~PINMUX_TRISTATE;
 
-	gpio_config(GPIO_PORT_I, GPIO_PIN_0 | GPIO_PIN_1, GPIO_MODE_GPIO); //Backlight +-5V.
-	gpio_output_enable(GPIO_PORT_I, GPIO_PIN_0 | GPIO_PIN_1, GPIO_OUTPUT_ENABLE); //Backlight +-5V.
-	gpio_write(GPIO_PORT_I, GPIO_PIN_0, GPIO_HIGH); //Backlight +5V enable.
+	gpio_config(GPIO_PORT_I, GPIO_PIN_0 | GPIO_PIN_1, GPIO_MODE_GPIO); // Backlight +-5V.
+	gpio_output_enable(GPIO_PORT_I, GPIO_PIN_0 | GPIO_PIN_1, GPIO_OUTPUT_ENABLE); // Backlight +-5V.
+	gpio_write(GPIO_PORT_I, GPIO_PIN_0, GPIO_HIGH); // Backlight +5V enable.
 
 	usleep(10000);
 
-	gpio_write(GPIO_PORT_I, GPIO_PIN_1, GPIO_HIGH); //Backlight -5V enable.
+	gpio_write(GPIO_PORT_I, GPIO_PIN_1, GPIO_HIGH); // Backlight -5V enable.
 
 	usleep(10000);
 
-	gpio_config(GPIO_PORT_V, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_GPIO); //Backlight PWM, Enable, Reset.
+	gpio_config(GPIO_PORT_V, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2, GPIO_MODE_GPIO); // Backlight PWM, Enable, Reset.
 	gpio_output_enable(GPIO_PORT_V, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2, GPIO_OUTPUT_ENABLE);
-	gpio_write(GPIO_PORT_V, GPIO_PIN_1, GPIO_HIGH); //Backlight Enable enable.
+	gpio_write(GPIO_PORT_V, GPIO_PIN_1, GPIO_HIGH); // Backlight Enable enable.
 
-	//Config display interface and display.
+	// Config display interface and display.
 	MIPI_CAL(0x60) = 0;
 
 	exec_cfg((u32 *)CLOCK_BASE, _display_config_1, 4);
@@ -89,7 +89,7 @@ void display_init()
 
 	usleep(10000);
 
-	gpio_write(GPIO_PORT_V, GPIO_PIN_2, GPIO_HIGH); //Backlight Reset enable.
+	gpio_write(GPIO_PORT_V, GPIO_PIN_2, GPIO_HIGH); // Backlight Reset enable.
 
 	usleep(60000);
 
@@ -146,9 +146,7 @@ void display_end()
 {
 	display_backlight(0);
 
-	//TODO: figure out why this freezes.
-
-	/*DSI(_DSIREG(DSI_VIDEO_MODE_CONTROL)) = 1;
+	DSI(_DSIREG(DSI_VIDEO_MODE_CONTROL)) = 1;
 	DSI(_DSIREG(DSI_WR_DATA)) = 0x2805;
 
 	u32 end = HOST1X(0x30A4) + 5;
@@ -171,17 +169,17 @@ void display_end()
 
 	usleep(50000);
 
-	//gpio_write(GPIO_PORT_V, GPIO_PIN_2, GPIO_LOW); //Backlight Reset disable.
+	gpio_write(GPIO_PORT_V, GPIO_PIN_2, GPIO_LOW); //Backlight Reset disable.
 
-	//usleep(10000);
+	usleep(10000);
 
-	//gpio_write(GPIO_PORT_I, GPIO_PIN_1, GPIO_LOW); //Backlight -5V disable.
+	gpio_write(GPIO_PORT_I, GPIO_PIN_1, GPIO_LOW); //Backlight -5V disable.
 
-	//usleep(10000);
+	usleep(10000);
 
-	//gpio_write(GPIO_PORT_I, GPIO_PIN_0, GPIO_LOW); //Backlight +5V disable.
+	gpio_write(GPIO_PORT_I, GPIO_PIN_0, GPIO_LOW); //Backlight +5V disable.
 
-	//usleep(10000);
+	usleep(10000);
 
 	//Disable clocks.
 	CLOCK(CLK_RST_CONTROLLER_RST_DEV_H_SET) = 0x1010000;
@@ -190,9 +188,9 @@ void display_end()
 	CLOCK(CLK_RST_CONTROLLER_CLK_ENB_L_CLR) = 0x18000000;
 
 	DSI(_DSIREG(DSI_PAD_CONTROL_0)) = DSI_PAD_CONTROL_VS1_PULLDN_CLK | DSI_PAD_CONTROL_VS1_PULLDN(0xF) | DSI_PAD_CONTROL_VS1_PDIO_CLK | DSI_PAD_CONTROL_VS1_PDIO(0xF);
-	DSI(_DSIREG(DSI_POWER_CONTROL)) = 0;*/
+	DSI(_DSIREG(DSI_POWER_CONTROL)) = 0;
 
-	gpio_config(GPIO_PORT_V, GPIO_PIN_0, GPIO_MODE_SPIO); //Backlight PWM.
+	gpio_config(GPIO_PORT_V, GPIO_PIN_0, GPIO_MODE_SPIO); // Backlight PWM.
 
 	PINMUX_AUX(PINMUX_AUX_LCD_BL_PWM) = (PINMUX_AUX(PINMUX_AUX_LCD_BL_PWM) & ~PINMUX_TRISTATE) | PINMUX_TRISTATE;
 	PINMUX_AUX(PINMUX_AUX_LCD_BL_PWM) = (PINMUX_AUX(PINMUX_AUX_LCD_BL_PWM) >> 2) << 2 | 1;

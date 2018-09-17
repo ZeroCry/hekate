@@ -444,7 +444,6 @@ int hos_launch(ini_sec_t *cfg)
 	int bootStateDramPkg2 = 0;
 	int bootStatePkg2Continue = 0;
 	int exoFwNumber = 0;
-	int end_di = 0;
 	launch_ctxt_t ctxt;
 
 	memset(&ctxt, 0, sizeof(launch_ctxt_t));
@@ -599,7 +598,6 @@ int hos_launch(ini_sec_t *cfg)
 		se_key_acc_ctrl(13, 0xFF);
 		bootStateDramPkg2 = 2;
 		bootStatePkg2Continue = 3;
-		end_di = 1;
 		if (!exoFwNumber)
 			exoFwNumber = 3;
 		break;
@@ -660,7 +658,8 @@ int hos_launch(ini_sec_t *cfg)
 	*mb_in = bootStateDramPkg2;
 	*mb_out = 0;
 
-	display_backlight(0);
+	// Disable display. This must be executed before secmon to provide support for all fw versions.
+	display_end();
 
 	// Wait for secmon to get ready.
 	cluster_boot_cpu0(ctxt.pkg1_id->secmon_base);
@@ -676,10 +675,6 @@ int hos_launch(ini_sec_t *cfg)
 	PMC(0x5B8) = 0xFFFFFFFF;
 	PMC(0x5BC) = 0xFFFFFFFF;
 	PMC(0x5C0) = 0xFFAAFFFF;*/
-
-	//Disable display.
-	if (end_di)
-		display_end();
 
 	// Signal pkg2 ready and continue boot.
 	*mb_in = bootStatePkg2Continue;

@@ -276,6 +276,7 @@ enum kip_offset_section
 
 static kip1_patch_t _fs_nosigchk_100[] = 
 {
+	{ KPS(KIP_TEXT) | 0x19468, 4, "\x08\x01\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x194A0, 4, "\xBA\x09\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x3A79C, 4, "\xE0\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -290,6 +291,7 @@ static kip1_patchset_t _fs_patches_100[] =
 
 static kip1_patch_t _fs_nosigchk_200[] = 
 {
+	{ KPS(KIP_TEXT) | 0x15D5C, 4, "\x0A\x01\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x15DF4, 4, "\xBC\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x3F720, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -304,6 +306,7 @@ static kip1_patchset_t _fs_patches_200[] =
 
 static kip1_patch_t _fs_nosigchk_210[] = 
 {
+	{ KPS(KIP_TEXT) | 0x15ECC, 4, "\x0A\x01\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x15F64, 4, "\xDF\x0A\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x3FAF8, 4, "\x00\x06\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -318,6 +321,7 @@ static kip1_patchset_t _fs_patches_210[] =
 
 static kip1_patch_t _fs_nosigchk_300[] = 
 {
+	{ KPS(KIP_TEXT) | 0x18D8C, 4, "\x0A\x01\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x18E24, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x49EC8, 4, "\x40\x04\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -332,6 +336,7 @@ static kip1_patchset_t _fs_patches_300[] =
 
 static kip1_patch_t _fs_nosigchk_30x[] = 
 {
+	{ KPS(KIP_TEXT) | 0x18DF8, 4, "\x0A\x01\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x18E90, 4, "\x52\x0C\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x49F34, 4, "\xE0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -346,6 +351,7 @@ static kip1_patchset_t _fs_patches_30x[] =
 
 static kip1_patch_t _fs_nosigchk_4xx[] = 
 {
+	{ KPS(KIP_TEXT) | 0x1C464, 4, "\x46\xEE\xFF\x97", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x1C4FC, 4, "\x3C\x2F\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x57934, 4, "\xE0\x02\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -381,6 +387,7 @@ static kip1_patchset_t _fs_patches_410[] =
 
 static kip1_patch_t _fs_nosigchk_50x[] = 
 {
+	{ KPS(KIP_TEXT) | 0x22D68, 4, "\x9A\xE3\xFF\x97", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x22DDC, 4, "\x7D\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x7D490, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -402,6 +409,7 @@ static kip1_patchset_t _fs_patches_50x[] =
 
 static kip1_patch_t _fs_nosigchk_510[] = 
 {
+	{ KPS(KIP_TEXT) | 0x22D98, 4, "\x9A\xE3\xFF\x97", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x22E0C, 4, "\x85\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x7D860, 4, "\x40\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -423,6 +431,7 @@ static kip1_patchset_t _fs_patches_510[] =
 
 static kip1_patch_t _fs_nosigchk_600[] = 
 {
+	{ KPS(KIP_TEXT) | 0x71234, 4, "\x07\xDF\xFF\x97", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x712A8, 4, "\x8E\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0xEB08C, 4, "\xC0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
@@ -430,6 +439,7 @@ static kip1_patch_t _fs_nosigchk_600[] =
 
 static kip1_patch_t _fs_nosigchk_600_exfat[] = 
 {
+	{ KPS(KIP_TEXT) | 0x7C934, 4, "\x07\xDF\xFF\x97", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0x7C9A8, 4, "\x8E\x3E\x00\x94", "\xE0\x03\x1F\x2A" },
 	{ KPS(KIP_TEXT) | 0xF678C, 4, "\xC0\x03\x00\x36", "\x1F\x20\x03\xD5" },
 	{ 0, 0, NULL, NULL }
